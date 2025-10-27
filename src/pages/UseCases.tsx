@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Headphones, Server, TrendingUp, Heart, Building, ShoppingCart, GraduationCap, Plane } from "lucide-react";
+import contactCenterImage from "@/assets/contact-center.jpg";
 
 const UseCases = () => {
   const useCases = [
@@ -153,6 +154,13 @@ const UseCases = () => {
       {/* Featured Case Study */}
       <section className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <img 
+              src={contactCenterImage} 
+              alt="Contactcenter met AI spraakagenten" 
+              className="w-full max-w-4xl mx-auto rounded-2xl shadow-elegant mb-8"
+            />
+          </div>
           <div className="bg-white rounded-2xl p-8 md:p-12 border border-border shadow-sm">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
               <div>

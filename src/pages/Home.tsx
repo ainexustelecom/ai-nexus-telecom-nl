@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone, MessageSquare, Globe, Wifi, Network, FileText, ArrowRight, CheckCircle2 } from "lucide-react";
+import heroImage from "@/assets/hero-telecom.jpg";
 
 const Home = () => {
   const stats = [
@@ -50,11 +51,12 @@ const Home = () => {
               </p>
             </div>
             <div className="relative">
-              <div className="aspect-square bg-gradient-primary rounded-3xl shadow-elegant flex items-center justify-center">
-                <div className="text-center text-white p-8">
-                  <Network className="h-32 w-32 mx-auto mb-4 opacity-90" />
-                  <p className="text-xl font-semibold">Betrouwbare AI-Telecom</p>
-                </div>
+              <div className="aspect-video rounded-3xl shadow-elegant overflow-hidden">
+                <img 
+                  src={heroImage} 
+                  alt="AI-gedreven telecom technologie met netwerk verbindingen" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

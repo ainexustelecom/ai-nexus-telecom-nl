@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Shield, Zap, Award, Phone, Globe, HeadphonesIcon, Lock, TrendingUp } from "lucide-react";
+import securityImage from "@/assets/security.jpg";
 
 const WaaromWij = () => {
   const benefits = [
@@ -117,6 +118,13 @@ const WaaromWij = () => {
       <section className="py-20 bg-secondary">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="rounded-2xl overflow-hidden shadow-elegant">
+              <img 
+                src={securityImage} 
+                alt="Veilige en beveiligde bedrijfscommunicatie met AI Nexus Telecom" 
+                className="w-full h-full object-cover"
+              />
+            </div>
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-6">
                 Vertrouwd door Bedrijven Wereldwijd

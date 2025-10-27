@@ -14,6 +14,9 @@ import {
   Signal,
   Database 
 } from "lucide-react";
+import voiceAiImage from "@/assets/voice-ai.jpg";
+import messagingImage from "@/assets/messaging.jpg";
+import developerApiImage from "@/assets/developer-api.jpg";
 
 const Diensten = () => {
   const services = [
@@ -138,6 +141,23 @@ const Diensten = () => {
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
             Complete AI-geïntegreerde telecomoplossingen voor elk bedrijf, van startup tot enterprise
           </p>
+        </div>
+      </section>
+
+      {/* Hero Images */}
+      <section className="py-12 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="rounded-xl overflow-hidden shadow-elegant">
+              <img src={voiceAiImage} alt="AI Spraakagenten" className="w-full h-48 object-cover" />
+            </div>
+            <div className="rounded-xl overflow-hidden shadow-elegant">
+              <img src={messagingImage} alt="Cloud Berichten" className="w-full h-48 object-cover" />
+            </div>
+            <div className="rounded-xl overflow-hidden shadow-elegant">
+              <img src={developerApiImage} alt="Developer API's" className="w-full h-48 object-cover" />
+            </div>
+          </div>
         </div>
       </section>
 

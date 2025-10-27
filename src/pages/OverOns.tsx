@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Target, Users, Lightbulb, Award, ExternalLink } from "lucide-react";
+import teamImage from "@/assets/team-collaboration.jpg";
 
 const OverOns = () => {
   return (
@@ -151,22 +152,12 @@ const OverOns = () => {
               </a>
             </div>
             <div className="lg:order-1">
-              <div className="bg-gradient-primary rounded-2xl p-12 text-center shadow-elegant aspect-square flex flex-col items-center justify-center">
-                <div className="text-white">
-                  <h3 className="text-4xl font-bold mb-4">AI Nexus</h3>
-                  <p className="text-xl mb-6 text-white/90">Ecosystem</p>
-                  <div className="space-y-2">
-                    <div className="bg-white/20 rounded-lg px-6 py-3">
-                      <p className="font-semibold">AI Nexus Core</p>
-                    </div>
-                    <div className="bg-white/30 rounded-lg px-6 py-3">
-                      <p className="font-semibold">AI Nexus Telecom</p>
-                    </div>
-                    <div className="bg-white/20 rounded-lg px-6 py-3">
-                      <p className="font-semibold">AI Nexus Data</p>
-                    </div>
-                  </div>
-                </div>
+              <div className="rounded-2xl shadow-elegant overflow-hidden">
+                <img 
+                  src={teamImage} 
+                  alt="AI Nexus team die samenwerkt aan telecom en AI oplossingen" 
+                  className="w-full h-full object-cover"
+                />
               </div>
             </div>
           </div>

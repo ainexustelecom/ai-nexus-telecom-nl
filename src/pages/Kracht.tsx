@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BarChart3, TrendingUp, Brain, Zap, Database, PieChart } from "lucide-react";
+import globalNetworkImage from "@/assets/global-network.jpg";
 
 const Kracht = () => {
   return (
@@ -59,15 +60,12 @@ const Kracht = () => {
                 ))}
               </div>
             </div>
-            <div className="bg-gradient-primary rounded-2xl p-12 shadow-elegant">
-              <Brain className="h-32 w-32 text-white mx-auto mb-6 opacity-90" />
-              <div className="text-white text-center">
-                <h3 className="text-2xl font-bold mb-4">AI Engine</h3>
-                <p className="text-white/90">
-                  Onze geavanceerde AI analyseert miljoenen gesprekken en berichten 
-                  om uw communicatie continu te optimaliseren
-                </p>
-              </div>
+            <div className="rounded-2xl shadow-elegant overflow-hidden">
+              <img 
+                src={globalNetworkImage} 
+                alt="Wereldwijd AI-gedreven telecom netwerk met data visualisatie" 
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>
