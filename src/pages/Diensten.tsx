@@ -184,7 +184,7 @@ const Diensten = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/contact">
+                <Link to={index === 0 ? "/voice-ai" : "/contact"}>
                   <Button variant="outline" className="w-full">
                     Meer Informatie
                   </Button>
