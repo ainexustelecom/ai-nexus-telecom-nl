@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import OverOns from "./pages/OverOns";
 import Prijzen from "./pages/Prijzen";
 import Ontwikkelaars from "./pages/Ontwikkelaars";
+import VoiceAI from "./pages/VoiceAI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/over-ons" element={<OverOns />} />
             <Route path="/prijzen" element={<Prijzen />} />
             <Route path="/ontwikkelaars" element={<Ontwikkelaars />} />
+            <Route path="/voice-ai" element={<VoiceAI />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

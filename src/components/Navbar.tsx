@@ -10,6 +10,7 @@ const Navbar = () => {
   const navItems = [
     { name: "Home", path: "/" },
     { name: "Diensten", path: "/diensten" },
+    { name: "Voice AI", path: "/voice-ai" },
     { name: "Waarom Wij", path: "/waarom-wij" },
     { name: "Aanpak", path: "/aanpak" },
     { name: "Oplossingen", path: "/oplossingen" },
