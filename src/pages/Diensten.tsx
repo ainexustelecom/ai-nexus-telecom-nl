@@ -184,7 +184,11 @@ const Diensten = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to={service.title === "AI Spraakagenten" ? "/voice-ai" : "/contact"}>
+                <Link to={
+                  service.title === "AI Spraakagenten" ? "/voice-ai" : 
+                  service.title === "Spraak & Spraak-API" ? "/voice-api" : 
+                  "/contact"
+                }>
                   <Button variant="outline" className="w-full">
                     Meer Informatie
                   </Button>
