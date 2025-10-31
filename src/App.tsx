@@ -18,6 +18,13 @@ import Prijzen from "./pages/Prijzen";
 import Ontwikkelaars from "./pages/Ontwikkelaars";
 import VoiceAI from "./pages/VoiceAI";
 import VoiceAPI from "./pages/VoiceAPI";
+import Messaging from "./pages/Messaging";
+import GlobalNumbers from "./pages/GlobalNumbers";
+import IoT from "./pages/IoT";
+import Networking from "./pages/Networking";
+import FaxAPI from "./pages/FaxAPI";
+import Storage from "./pages/Storage";
+import SelfService from "./pages/SelfService";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +51,13 @@ const App = () => (
             <Route path="/ontwikkelaars" element={<Ontwikkelaars />} />
             <Route path="/voice-ai" element={<VoiceAI />} />
             <Route path="/voice-api" element={<VoiceAPI />} />
+            <Route path="/berichten" element={<Messaging />} />
+            <Route path="/wereldwijde-nummers" element={<GlobalNumbers />} />
+            <Route path="/draadloos-iot" element={<IoT />} />
+            <Route path="/netwerken" element={<Networking />} />
+            <Route path="/fax-api" element={<FaxAPI />} />
+            <Route path="/opslag" element={<Storage />} />
+            <Route path="/zelfbeheer" element={<SelfService />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>

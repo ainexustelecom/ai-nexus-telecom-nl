@@ -186,7 +186,14 @@ const Diensten = () => {
                 </ul>
                 <Link to={
                   service.title === "AI Spraakagenten" ? "/voice-ai" : 
-                  service.title === "Spraak & Spraak-API" ? "/voice-api" : 
+                  service.title === "Spraak & Spraak-API" ? "/voice-api" :
+                  service.title === "Berichten" ? "/berichten" :
+                  service.title === "Wereldwijde Nummers" ? "/wereldwijde-nummers" :
+                  service.title === "Draadloos & IoT" ? "/draadloos-iot" :
+                  service.title === "Netwerken" ? "/netwerken" :
+                  service.title === "Fax-API's" ? "/fax-api" :
+                  service.title === "Opslag" ? "/opslag" :
+                  service.title === "Zelfbeheertools" ? "/zelfbeheer" :
                   "/contact"
                 }>
                   <Button variant="outline" className="w-full">
