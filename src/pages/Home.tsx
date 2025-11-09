@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone, MessageSquare, Globe, Wifi, Network, FileText, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import heroImage from "@/assets/hero-telecom.jpg";
 
 const Home = () => {
@@ -151,6 +152,75 @@ const Home = () => {
               </Link>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 bg-background">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Veelgestelde Vragen
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Antwoorden op de meest gestelde vragen over AI Nexus Telecom
+            </p>
+          </div>
+          <Accordion type="single" collapsible className="w-full space-y-4">
+            <AccordionItem value="item-1" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Wat maakt AI Nexus Telecom anders dan andere telecombedrijven?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                AI Nexus Telecom integreert geavanceerde AI-technologie in alle communicatieoplossingen. Onze AI-spraakagenten kunnen natuurlijke gesprekken voeren, onze systemen leren van elke interactie, en we bieden real-time analyse van communicatiepatronen. Dit zorgt voor betere klantervaringen, hogere efficiëntie en lagere kosten.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-2" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Hoe lang duurt de implementatie van AI Nexus diensten?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                De meeste implementaties zijn binnen 3-5 werkdagen volledig operationeel. Voor basisdiensten zoals telefoonnummers en SMS kunnen we zelfs binnen 24 uur starten. Complexere AI-integraties en maatwerk oplossingen kunnen 1-2 weken in beslag nemen, afhankelijk van uw specifieke vereisten.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-3" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Is mijn data veilig bij AI Nexus Telecom?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Absoluut. We zijn volledig GDPR-compliant en gebruiken enterprise-grade encryptie voor alle data. Uw gegevens worden opgeslagen in EU datacenters met ISO 27001 certificering. We voeren regelmatig beveiligingsaudits uit en hebben strikte toegangscontroles. Uw data is en blijft van u.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-4" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Kan ik AI Nexus integreren met mijn bestaande systemen?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Ja, onze oplossingen zijn ontworpen voor naadloze integratie. We bieden REST API's, webhooks en kant-en-klare integraties voor populaire CRM-systemen, helpdesk software en bedrijfsapplicaties. Ons ontwikkelaarsteam staat klaar om u te helpen bij maatwerk integraties indien nodig.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-5" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Wat zijn de kosten en zijn er verborgen kosten?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                We hanteren transparante pay-as-you-go prijzen zonder verborgen kosten. U betaalt alleen voor wat u gebruikt: per minuut voor spraak, per bericht voor SMS, per nummer voor telefoonnummers. Er zijn geen opstartkosten of langetermijncontracten vereist. Bekijk onze prijzenpagina voor gedetailleerde tarieven of neem contact op voor een gepersonaliseerde offerte.
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="item-6" className="bg-card border border-border rounded-lg px-6">
+              <AccordionTrigger className="text-left">
+                Bieden jullie ondersteuning in het Nederlands?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                Ja, we bieden 24/7 support in het Nederlands via telefoon, e-mail en chat. Ons supportteam bestaat uit telecom-experts die u kunnen helpen met technische vragen, implementatie en optimalisatie van uw communicatie-infrastructuur. Voor enterprise klanten bieden we ook dedicated account managers.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </section>
 
