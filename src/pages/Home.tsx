@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone, MessageSquare, Globe, Wifi, Network, FileText, ArrowRight, CheckCircle2, Star } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import SavingsCalculator from "@/components/SavingsCalculator";
 import heroImage from "@/assets/hero-telecom.jpg";
 
 const Home = () => {
@@ -108,6 +109,21 @@ const Home = () => {
               </Button>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Savings Calculator Section */}
+      <section className="py-20 bg-background">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Hoeveel Kunt U Besparen?
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Ontdek in 30 seconden wat AI Nexus Telecom u kan besparen op uw telecomkosten
+            </p>
+          </div>
+          <SavingsCalculator />
         </div>
       </section>
 
