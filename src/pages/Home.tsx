@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Phone, MessageSquare, Globe, Wifi, Network, FileText, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Phone, MessageSquare, Globe, Wifi, Network, FileText, ArrowRight, CheckCircle2, Star } from "lucide-react";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import heroImage from "@/assets/hero-telecom.jpg";
 
@@ -107,6 +107,83 @@ const Home = () => {
                 Bekijk Alle Diensten
               </Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-gradient-secondary">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Wat Onze Klanten Zeggen
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Ontdek waarom bedrijven vertrouwen op AI Nexus Telecom
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "AI Nexus heeft onze klantenservice getransformeerd. De AI-spraakagenten werken 24/7 en onze klanten zijn enthousiast over de snelle responstijd.",
+                name: "Maria van den Berg",
+                role: "CEO",
+                company: "TechVision B.V.",
+                rating: 5
+              },
+              {
+                quote: "De implementatie was verrassend snel en eenvoudig. Binnen 3 dagen hadden we ons complete telefoonsysteem operationeel. Geweldige service!",
+                name: "Jan Bakker",
+                role: "CTO",
+                company: "InnovateNL",
+                rating: 5
+              },
+              {
+                quote: "De kwaliteit van de spraakverbindingen is uitstekend en de API integratie met ons CRM verliep naadloos. Een echte aanrader voor ieder bedrijf.",
+                name: "Sophie Jansen",
+                role: "Operations Manager",
+                company: "CloudFirst Solutions",
+                rating: 5
+              },
+              {
+                quote: "Dankzij de wereldwijde nummers kunnen we nu een lokale aanwezigheid hebben in meer dan 50 landen. Dit heeft onze internationale groei enorm versneld.",
+                name: "Ahmed El-Sayed",
+                role: "Director International",
+                company: "GlobalConnect",
+                rating: 5
+              },
+              {
+                quote: "De GDPR-compliance en beveiliging waren voor ons cruciaal. AI Nexus overtreft alle verwachtingen op het gebied van data privacy en security.",
+                name: "Linda de Vries",
+                role: "Chief Privacy Officer",
+                company: "SecureData NL",
+                rating: 5
+              },
+              {
+                quote: "De kosten zijn transparant en veel lager dan onze vorige provider. De ROI was binnen 2 maanden al zichtbaar. Uitstekende prijs-kwaliteit verhouding.",
+                name: "Robert Smit",
+                role: "CFO",
+                company: "SmartBusiness Group",
+                rating: 5
+              }
+            ].map((testimonial, index) => (
+              <div
+                key={index}
+                className="bg-card border border-border rounded-xl p-6 shadow-elegant hover:shadow-glow transition-all duration-300"
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="h-5 w-5 fill-primary text-primary" />
+                  ))}
+                </div>
+                <p className="text-foreground mb-6 italic">"{testimonial.quote}"</p>
+                <div className="border-t border-border pt-4">
+                  <p className="font-semibold text-foreground">{testimonial.name}</p>
+                  <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                  <p className="text-sm text-primary font-medium">{testimonial.company}</p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
