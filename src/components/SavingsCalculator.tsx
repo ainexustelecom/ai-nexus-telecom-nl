@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -233,8 +234,8 @@ const SavingsCalculator = () => {
                 </div>
               </div>
 
-              <Button className="w-full mt-6 bg-primary hover:bg-primary/90">
-                Neem Contact Op Voor Een Offerte
+              <Button asChild className="w-full mt-6 bg-primary hover:bg-primary/90">
+                <Link to="/contact">Neem Contact Op Voor Een Offerte</Link>
               </Button>
             </Card>
           </>
