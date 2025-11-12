@@ -6,13 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { TrendingDown, Calculator, CheckCircle2, Phone, Smartphone, Building2, Users } from "lucide-react";
+import { TrendingDown, Calculator, CheckCircle2, Phone, Smartphone, Building2, Users, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const SavingsCalculator = () => {
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState("basis");
+  const [currentStep, setCurrentStep] = useState("contact");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
+    // Contact info
+    email: "",
+    companyName: "",
+    phone: "",
+    
     // Basis informatie
     employees: "",
     monthlySpend: "",
@@ -48,8 +55,16 @@ const SavingsCalculator = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    // Only allow numbers
-    if (value === "" || /^\d+$/.test(value)) {
+    // Allow numbers for numeric fields, allow text for contact fields
+    const numericFields = ['employees', 'monthlySpend', 'fixedLines', 'nationalMinutes', 
+                          'internationalMinutes', 'mobileSubscriptions', 'mobileDataGB', 
+                          'smsVolume', 'homeWorkers'];
+    
+    if (numericFields.includes(name)) {
+      if (value === "" || /^\d+$/.test(value)) {
+        setFormData(prev => ({ ...prev, [name]: value }));
+      }
+    } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
@@ -58,7 +73,18 @@ const SavingsCalculator = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const calculateSavings = () => {
+  const calculateSavings = async () => {
+    // Validate email
+    if (!formData.email) {
+      toast({
+        title: "Email vereist",
+        description: "Vul alstublieft uw email adres in om de resultaten te bekijken.",
+        variant: "destructive"
+      });
+      setCurrentStep("contact");
+      return;
+    }
+
     const employees = parseInt(formData.employees) || 0;
     const monthlySpend = parseInt(formData.monthlySpend) || 0;
 
@@ -68,8 +94,11 @@ const SavingsCalculator = () => {
         description: "Aantal medewerkers en huidige maandelijkse kosten zijn verplicht.",
         variant: "destructive"
       });
+      setCurrentStep("basis");
       return;
     }
+
+    setIsSubmitting(true);
 
     // Get all input values
     const fixedLines = parseInt(formData.fixedLines) || 0;
@@ -84,29 +113,18 @@ const SavingsCalculator = () => {
     // Calculate VoIP savings (traditional vs VoIP)
     let voipSavings = 0;
     if (systemType === "traditional") {
-      // Traditional systems are 30-50% more expensive
-      const estimatedFixedCosts = fixedLines * 35; // €35 per lijn traditioneel
-      voipSavings = estimatedFixedCosts * 0.4; // 40% besparing op VoIP
+      const estimatedFixedCosts = fixedLines * 35;
+      voipSavings = estimatedFixedCosts * 0.4;
     } else if (systemType === "voip") {
-      // Already on VoIP, but AI Nexus can still save 15-20%
-      const estimatedFixedCosts = fixedLines * 20; // €20 per VoIP lijn
+      const estimatedFixedCosts = fixedLines * 20;
       voipSavings = estimatedFixedCosts * 0.15;
     }
 
-    // Mobile savings (bulk pricing, better rates)
-    const mobileSavings = mobileSubscriptions * 12; // €12 besparing per abonnement
-
-    // International call savings (50% cheaper)
+    const mobileSavings = mobileSubscriptions * 12;
     const internationalSavings = (internationalMinutes * 0.15) * 0.5;
-
-    // SMS savings (40% cheaper)
     const smsSavings = (smsVolume * 0.08) * 0.4;
-
-    // AI features & automation savings
-    const featureSavings = employees * 8; // €8 per medewerker aan efficiency
-
-    // Home worker infrastructure savings
-    const homeWorkerSavings = homeWorkers * 5; // €5 per thuiswerker
+    const featureSavings = employees * 8;
+    const homeWorkerSavings = homeWorkers * 5;
 
     const totalMonthlySavings = voipSavings + mobileSavings + internationalSavings + 
                                  smsSavings + featureSavings + homeWorkerSavings;
@@ -114,28 +132,68 @@ const SavingsCalculator = () => {
     const yearlysSavings = totalMonthlySavings * 12;
     const savingsPercentage = ((totalMonthlySavings / monthlySpend) * 100);
 
-    setSavings({
+    const calculatedSavings = {
       monthly: Math.round(totalMonthlySavings),
       yearly: Math.round(yearlysSavings),
-      percentage: Math.min(Math.round(savingsPercentage), 50), // Cap at 50%
+      percentage: Math.min(Math.round(savingsPercentage), 50),
       breakdown: {
         voip: Math.round(voipSavings),
         mobile: Math.round(mobileSavings),
         international: Math.round(internationalSavings + smsSavings),
         features: Math.round(featureSavings + homeWorkerSavings)
       }
-    });
+    };
 
-    setShowResults(true);
+    // Save to database
+    try {
+      const { error } = await supabase.from('calculator_submissions').insert({
+        email: formData.email,
+        company_name: formData.companyName || null,
+        phone: formData.phone || null,
+        employees: employees,
+        monthly_costs: monthlySpend,
+        international_minutes: internationalMinutes,
+        sms_volume: smsVolume,
+        system_type: systemType || 'unknown',
+        fixed_lines: fixedLines,
+        national_minutes: nationalMinutes,
+        mobile_subscriptions: mobileSubscriptions,
+        data_usage_gb: mobileDataGB,
+        contract_months: formData.contractDuration === "1year" ? 12 : 
+                         formData.contractDuration === "2year" ? 24 : 
+                         formData.contractDuration === "3year" ? 36 : 0,
+        home_workers: homeWorkers,
+        total_savings: calculatedSavings.monthly,
+        savings_percentage: calculatedSavings.percentage,
+      });
 
-    toast({
-      title: "Berekening voltooid!",
-      description: "Bekijk hieronder uw potentiële besparingen.",
-    });
+      if (error) {
+        console.error('Error saving submission:', error);
+        toast({
+          title: "Fout bij opslaan",
+          description: "Er ging iets mis bij het opslaan, maar u kunt de resultaten wel bekijken.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Succesvol opgeslagen!",
+          description: "We nemen binnenkort contact met u op.",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setSavings(calculatedSavings);
+      setShowResults(true);
+      setIsSubmitting(false);
+    }
   };
 
   const resetCalculator = () => {
     setFormData({
+      email: "",
+      companyName: "",
+      phone: "",
       employees: "",
       monthlySpend: "",
       systemType: "",
@@ -150,7 +208,7 @@ const SavingsCalculator = () => {
       currentProvider: ""
     });
     setShowResults(false);
-    setCurrentStep("basis");
+    setCurrentStep("contact");
   };
 
   return (
@@ -163,7 +221,11 @@ const SavingsCalculator = () => {
         </div>
         
         <Tabs value={currentStep} onValueChange={setCurrentStep} className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-6">
+          <TabsList className="grid w-full grid-cols-5 mb-6">
+            <TabsTrigger value="contact" className="text-xs sm:text-sm">
+              <Mail className="h-4 w-4 mr-1" />
+              Contact
+            </TabsTrigger>
             <TabsTrigger value="basis" className="text-xs sm:text-sm">
               <Users className="h-4 w-4 mr-1" />
               Basis
@@ -181,6 +243,61 @@ const SavingsCalculator = () => {
               Extra
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="contact" className="space-y-4">
+            <div>
+              <Label htmlFor="email" className="text-foreground">
+                Email adres <span className="text-primary">*</span>
+              </Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="uw.email@bedrijf.nl"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="mt-1"
+                required
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="companyName" className="text-foreground">
+                Bedrijfsnaam
+              </Label>
+              <Input
+                id="companyName"
+                name="companyName"
+                type="text"
+                placeholder="Uw bedrijfsnaam"
+                value={formData.companyName}
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="phone" className="text-foreground">
+                Telefoonnummer
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder="+31 6 12345678"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className="mt-1"
+              />
+            </div>
+
+            <Button 
+              onClick={() => setCurrentStep("basis")} 
+              className="w-full bg-primary hover:bg-primary/90"
+            >
+              Volgende Stap
+            </Button>
+          </TabsContent>
 
           <TabsContent value="basis" className="space-y-4">
             <div>
@@ -230,12 +347,21 @@ const SavingsCalculator = () => {
               />
             </div>
 
-            <Button 
-              onClick={() => setCurrentStep("telefonie")} 
-              className="w-full bg-primary hover:bg-primary/90"
-            >
-              Volgende Stap
-            </Button>
+            <div className="flex gap-3">
+              <Button 
+                onClick={() => setCurrentStep("contact")} 
+                variant="outline"
+                className="flex-1"
+              >
+                Vorige
+              </Button>
+              <Button 
+                onClick={() => setCurrentStep("telefonie")} 
+                className="flex-1 bg-primary hover:bg-primary/90"
+              >
+                Volgende
+              </Button>
+            </div>
           </TabsContent>
 
           <TabsContent value="telefonie" className="space-y-4">
@@ -440,8 +566,9 @@ const SavingsCalculator = () => {
               <Button 
                 onClick={calculateSavings} 
                 className="flex-1 bg-primary hover:bg-primary/90"
+                disabled={isSubmitting}
               >
-                Bereken Besparing
+                {isSubmitting ? "Bezig met opslaan..." : "Bereken Besparing"}
               </Button>
             </div>
           </TabsContent>
@@ -490,64 +617,61 @@ const SavingsCalculator = () => {
                 <p className="text-4xl font-bold text-primary">€{savings.yearly.toLocaleString()}</p>
               </div>
 
-              <div className="space-y-3 mb-6">
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-foreground">VoIP & Infrastructuur</span>
-                    <span className="font-semibold text-primary">€{savings.breakdown.voip.toLocaleString()}/mnd</span>
-                  </div>
+              <div className="space-y-3">
+                <h5 className="font-semibold text-foreground mb-3">Besparingsopbouw:</h5>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                  <span className="text-sm text-muted-foreground">VoIP & Infrastructuur</span>
+                  <span className="font-semibold text-foreground">€{savings.breakdown.voip}</span>
                 </div>
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-foreground">Mobiele Abonnementen</span>
-                    <span className="font-semibold text-primary">€{savings.breakdown.mobile.toLocaleString()}/mnd</span>
-                  </div>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                  <span className="text-sm text-muted-foreground">Mobiele Abonnementen</span>
+                  <span className="font-semibold text-foreground">€{savings.breakdown.mobile}</span>
                 </div>
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-foreground">Internationaal & SMS</span>
-                    <span className="font-semibold text-primary">€{savings.breakdown.international.toLocaleString()}/mnd</span>
-                  </div>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                  <span className="text-sm text-muted-foreground">Internationaal & SMS</span>
+                  <span className="font-semibold text-foreground">€{savings.breakdown.international}</span>
                 </div>
-                <div className="bg-muted/50 p-3 rounded-lg">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-foreground">AI Features & Efficiency</span>
-                    <span className="font-semibold text-primary">€{savings.breakdown.features.toLocaleString()}/mnd</span>
-                  </div>
+                
+                <div className="flex justify-between items-center p-3 bg-muted/30 rounded-lg">
+                  <span className="text-sm text-muted-foreground">AI Features & Efficiency</span>
+                  <span className="font-semibold text-foreground">€{savings.breakdown.features}</span>
                 </div>
               </div>
-              
-              <div className="space-y-3 border-t border-border pt-6">
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground">
-                    Geen opstartkosten of langetermijncontracten
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground">
-                    Pay-as-you-go tarieven zonder verborgen kosten
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground">
-                    Gratis migratie van uw huidige systeem
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                  <p className="text-sm text-foreground">
-                    24/7 support in het Nederlands inbegrepen
-                  </p>
-                </div>
-              </div>
-
-              <Button asChild className="w-full mt-6 bg-primary hover:bg-primary/90">
-                <Link to="/contact">Neem Contact Op Voor Een Offerte</Link>
-              </Button>
             </Card>
+
+            <Card className="p-6 bg-primary/5 border-primary/20">
+              <h5 className="font-semibold text-foreground mb-3">Wat u krijgt:</h5>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Moderne VoIP telefonie met AI-assistentie</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Geïntegreerde mobiele en vaste telefonie oplossing</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>24/7 Nederlandse klantenservice</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <span>Flexibele contracten zonder lange bindingsperiodes</span>
+                </li>
+              </ul>
+            </Card>
+
+            <Button 
+              asChild
+              className="w-full bg-primary hover:bg-primary/90 text-lg py-6"
+            >
+              <Link to="/contact">
+                Neem Contact Op
+              </Link>
+            </Button>
           </>
         )}
       </div>
