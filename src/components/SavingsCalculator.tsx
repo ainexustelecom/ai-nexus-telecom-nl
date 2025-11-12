@@ -146,26 +146,30 @@ const SavingsCalculator = () => {
 
     // Save to database
     try {
-      const { error } = await supabase.from('calculator_submissions').insert({
-        email: formData.email,
-        company_name: formData.companyName || null,
-        phone: formData.phone || null,
-        employees: employees,
-        monthly_costs: monthlySpend,
-        international_minutes: internationalMinutes,
-        sms_volume: smsVolume,
-        system_type: systemType || 'unknown',
-        fixed_lines: fixedLines,
-        national_minutes: nationalMinutes,
-        mobile_subscriptions: mobileSubscriptions,
-        data_usage_gb: mobileDataGB,
-        contract_months: formData.contractDuration === "1year" ? 12 : 
-                         formData.contractDuration === "2year" ? 24 : 
-                         formData.contractDuration === "3year" ? 36 : 0,
-        home_workers: homeWorkers,
-        total_savings: calculatedSavings.monthly,
-        savings_percentage: calculatedSavings.percentage,
-      });
+      const { data: submissionData, error } = await supabase
+        .from('calculator_submissions')
+        .insert({
+          email: formData.email,
+          company_name: formData.companyName || null,
+          phone: formData.phone || null,
+          employees: employees,
+          monthly_costs: monthlySpend,
+          international_minutes: internationalMinutes,
+          sms_volume: smsVolume,
+          system_type: systemType || 'unknown',
+          fixed_lines: fixedLines,
+          national_minutes: nationalMinutes,
+          mobile_subscriptions: mobileSubscriptions,
+          data_usage_gb: mobileDataGB,
+          contract_months: formData.contractDuration === "1year" ? 12 : 
+                           formData.contractDuration === "2year" ? 24 : 
+                           formData.contractDuration === "3year" ? 36 : 0,
+          home_workers: homeWorkers,
+          total_savings: calculatedSavings.monthly,
+          savings_percentage: calculatedSavings.percentage,
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Error saving submission:', error);
@@ -179,6 +183,16 @@ const SavingsCalculator = () => {
           title: "Succesvol opgeslagen!",
           description: "We nemen binnenkort contact met u op.",
         });
+
+        // Send notification for high savings (silently, don't block user experience)
+        try {
+          await supabase.functions.invoke('notify-high-savings', {
+            body: submissionData
+          });
+        } catch (notifyError) {
+          console.error('Notification error:', notifyError);
+          // Don't show error to user, notification is background task
+        }
       }
     } catch (error) {
       console.error('Error:', error);
