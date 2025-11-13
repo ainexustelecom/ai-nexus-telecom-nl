@@ -25,6 +25,8 @@ import Networking from "./pages/Networking";
 import FaxAPI from "./pages/FaxAPI";
 import Storage from "./pages/Storage";
 import SelfService from "./pages/SelfService";
+import Auth from "./pages/Auth";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,8 @@ const App = () => (
             <Route path="/fax-api" element={<FaxAPI />} />
             <Route path="/opslag" element={<Storage />} />
             <Route path="/zelfbeheer" element={<SelfService />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
