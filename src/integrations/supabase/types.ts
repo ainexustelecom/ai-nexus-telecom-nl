@@ -23,15 +23,19 @@ export type Database = {
           email: string
           employees: number
           fixed_lines: number
+          follow_up_date: string | null
           home_workers: number
           id: string
           international_minutes: number
+          last_contacted_at: string | null
           mobile_subscriptions: number
           monthly_costs: number
           national_minutes: number
+          notes: string | null
           phone: string | null
           savings_percentage: number
           sms_volume: number
+          status: Database["public"]["Enums"]["lead_status"]
           system_type: string
           total_savings: number
         }
@@ -43,15 +47,19 @@ export type Database = {
           email: string
           employees: number
           fixed_lines: number
+          follow_up_date?: string | null
           home_workers: number
           id?: string
           international_minutes: number
+          last_contacted_at?: string | null
           mobile_subscriptions: number
           monthly_costs: number
           national_minutes: number
+          notes?: string | null
           phone?: string | null
           savings_percentage: number
           sms_volume: number
+          status?: Database["public"]["Enums"]["lead_status"]
           system_type: string
           total_savings: number
         }
@@ -63,15 +71,19 @@ export type Database = {
           email?: string
           employees?: number
           fixed_lines?: number
+          follow_up_date?: string | null
           home_workers?: number
           id?: string
           international_minutes?: number
+          last_contacted_at?: string | null
           mobile_subscriptions?: number
           monthly_costs?: number
           national_minutes?: number
+          notes?: string | null
           phone?: string | null
           savings_percentage?: number
           sms_volume?: number
+          status?: Database["public"]["Enums"]["lead_status"]
           system_type?: string
           total_savings?: number
         }
@@ -85,7 +97,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      lead_status:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "negotiating"
+        | "won"
+        | "lost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -212,6 +230,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      lead_status: [
+        "new",
+        "contacted",
+        "qualified",
+        "negotiating",
+        "won",
+        "lost",
+      ],
+    },
   },
 } as const
