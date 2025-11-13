@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { Resend } from "resend";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const resendApiKey = Deno.env.get("RESEND_API_KEY");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -54,71 +52,85 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Verstuur email notificatie
-    const emailResponse = await resend.emails.send({
-      from: "Calculator Notificaties <onboarding@resend.dev>", // Vervang met jouw gevalideerde domein
-      to: ["info@jouwbedrijf.nl"], // Vervang met het email adres van het bedrijf
-      subject: `🎯 Nieuwe Lead: ${submission.savings_percentage.toFixed(0)}% besparing mogelijk!`,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h1 style="color: #2563eb;">Nieuwe Calculator Submission met Hoog Besparingspotentieel!</h1>
-          
-          <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #059669; margin-top: 0;">💰 Besparingspotentieel</h2>
-            <p style="font-size: 24px; font-weight: bold; color: #059669; margin: 10px 0;">
-              €${submission.total_savings.toFixed(2)} per maand
-            </p>
-            <p style="font-size: 18px; color: #059669;">
-              ${submission.savings_percentage.toFixed(1)}% besparing
-            </p>
-          </div>
-
-          <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #1f2937; margin-top: 0;">📋 Contactgegevens</h2>
-            <p><strong>Bedrijfsnaam:</strong> ${submission.company_name || 'Niet opgegeven'}</p>
-            <p><strong>Email:</strong> <a href="mailto:${submission.email}">${submission.email}</a></p>
-            <p><strong>Telefoon:</strong> ${submission.phone || 'Niet opgegeven'}</p>
-          </div>
-
-          <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #1f2937; margin-top: 0;">🏢 Bedrijfsgegevens</h2>
-            <p><strong>Aantal medewerkers:</strong> ${submission.employees}</p>
-            <p><strong>Huidige maandelijkse kosten:</strong> €${submission.monthly_costs.toFixed(2)}</p>
-            <p><strong>Huidig systeem:</strong> ${submission.system_type}</p>
-            <p><strong>Thuiswerkers:</strong> ${submission.home_workers}</p>
-            <p><strong>Contractduur:</strong> ${submission.contract_months} maanden</p>
-          </div>
-
-          <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
-            <h2 style="color: #1f2937; margin-top: 0;">📞 Communicatiegebruik</h2>
-            <h3 style="color: #4b5563;">Vast</h3>
-            <p><strong>Vaste lijnen:</strong> ${submission.fixed_lines}</p>
-            <p><strong>Nationale minuten:</strong> ${submission.national_minutes}</p>
+    // Verstuur email notificatie via Resend API
+    const emailResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${resendApiKey}`,
+      },
+      body: JSON.stringify({
+        from: "Calculator Notificaties <onboarding@resend.dev>", // Vervang met jouw gevalideerde domein
+        to: ["info@jouwbedrijf.nl"], // Vervang met het email adres van het bedrijf
+        subject: `🎯 Nieuwe Lead: ${submission.savings_percentage.toFixed(0)}% besparing mogelijk!`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h1 style="color: #2563eb;">Nieuwe Calculator Submission met Hoog Besparingspotentieel!</h1>
             
-            <h3 style="color: #4b5563;">Mobiel</h3>
-            <p><strong>Mobiele abonnementen:</strong> ${submission.mobile_subscriptions}</p>
-            <p><strong>Data gebruik:</strong> ${submission.data_usage_gb} GB</p>
-            
-            <h3 style="color: #4b5563;">Overig</h3>
-            <p><strong>Internationale minuten:</strong> ${submission.international_minutes}</p>
-            <p><strong>SMS volume:</strong> ${submission.sms_volume}</p>
-          </div>
+            <div style="background-color: #f3f4f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #059669; margin-top: 0;">💰 Besparingspotentieel</h2>
+              <p style="font-size: 24px; font-weight: bold; color: #059669; margin: 10px 0;">
+                €${submission.total_savings.toFixed(2)} per maand
+              </p>
+              <p style="font-size: 18px; color: #059669;">
+                ${submission.savings_percentage.toFixed(1)}% besparing
+              </p>
+            </div>
 
-          <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
-            <p style="color: #6b7280; font-size: 14px;">
-              Deze email is automatisch gegenereerd door de besparingscalculator.
-            </p>
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #1f2937; margin-top: 0;">📋 Contactgegevens</h2>
+              <p><strong>Bedrijfsnaam:</strong> ${submission.company_name || 'Niet opgegeven'}</p>
+              <p><strong>Email:</strong> <a href="mailto:${submission.email}">${submission.email}</a></p>
+              <p><strong>Telefoon:</strong> ${submission.phone || 'Niet opgegeven'}</p>
+            </div>
+
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #1f2937; margin-top: 0;">🏢 Bedrijfsgegevens</h2>
+              <p><strong>Aantal medewerkers:</strong> ${submission.employees}</p>
+              <p><strong>Huidige maandelijkse kosten:</strong> €${submission.monthly_costs.toFixed(2)}</p>
+              <p><strong>Huidig systeem:</strong> ${submission.system_type}</p>
+              <p><strong>Thuiswerkers:</strong> ${submission.home_workers}</p>
+              <p><strong>Contractduur:</strong> ${submission.contract_months} maanden</p>
+            </div>
+
+            <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e5e7eb; border-radius: 8px; margin: 20px 0;">
+              <h2 style="color: #1f2937; margin-top: 0;">📞 Communicatiegebruik</h2>
+              <h3 style="color: #4b5563;">Vast</h3>
+              <p><strong>Vaste lijnen:</strong> ${submission.fixed_lines}</p>
+              <p><strong>Nationale minuten:</strong> ${submission.national_minutes}</p>
+              
+              <h3 style="color: #4b5563;">Mobiel</h3>
+              <p><strong>Mobiele abonnementen:</strong> ${submission.mobile_subscriptions}</p>
+              <p><strong>Data gebruik:</strong> ${submission.data_usage_gb} GB</p>
+              
+              <h3 style="color: #4b5563;">Overig</h3>
+              <p><strong>Internationale minuten:</strong> ${submission.international_minutes}</p>
+              <p><strong>SMS volume:</strong> ${submission.sms_volume}</p>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e5e7eb;">
+              <p style="color: #6b7280; font-size: 14px;">
+                Deze email is automatisch gegenereerd door de besparingscalculator.
+              </p>
+            </div>
           </div>
-        </div>
-      `,
+        `,
+      }),
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.json();
+      throw new Error(`Resend API error: ${JSON.stringify(errorData)}`);
+    }
+
+    const emailData = await emailResponse.json();
+
+    console.log("Email sent successfully:", emailData);
 
     return new Response(
       JSON.stringify({ 
         message: 'High savings notification sent',
-        emailId: emailResponse.data?.id 
+        emailId: emailData.id 
       }),
       {
         status: 200,
