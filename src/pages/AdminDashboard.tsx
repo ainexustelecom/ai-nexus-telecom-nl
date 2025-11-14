@@ -10,9 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Filter, RefreshCw, Edit, Mail, Phone, Calendar, TrendingUp, Users, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { LogOut, Filter, RefreshCw, Edit, Mail, Phone, Calendar, TrendingUp, Users } from "lucide-react";
 import type { User, Session } from '@supabase/supabase-js';
 
 interface Lead {
@@ -248,6 +248,28 @@ const AdminDashboard = () => {
     return null;
   }
 
+  if (isAdmin === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">Toegang controleren...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Alert className="max-w-md">
+          <AlertDescription>
+            Je hebt geen toegang tot het admin dashboard. Neem contact op met een administrator voor toegang.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -261,13 +283,6 @@ const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Eerste Admin Gebruiker Aanmaken</AlertTitle>
-          <AlertDescription>
-            Om de eerste admin gebruiker aan te maken, gebruik de backend database tool om een record toe te voegen aan de user_roles tabel met je user_id en role 'admin'.
-          </AlertDescription>
-        </Alert>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-3">
