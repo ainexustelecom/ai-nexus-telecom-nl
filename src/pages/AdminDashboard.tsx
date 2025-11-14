@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Filter, RefreshCw, Edit, Mail, Phone, Calendar, TrendingUp, Users } from "lucide-react";
+import { LogOut, Filter, RefreshCw, Edit, Mail, Phone, Calendar, TrendingUp, Users, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import type { User, Session } from '@supabase/supabase-js';
 
 interface Lead {
@@ -37,6 +38,7 @@ const AdminDashboard = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [filteredLeads, setFilteredLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [editStatus, setEditStatus] = useState("");
@@ -44,6 +46,22 @@ const AdminDashboard = () => {
   const [editNotes, setEditNotes] = useState("");
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  const checkAdminRole = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('role', 'admin')
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking admin role:', error);
+      return false;
+    }
+    
+    return !!data;
+  };
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -53,6 +71,20 @@ const AdminDashboard = () => {
         
         if (!session?.user) {
           navigate("/auth");
+        } else {
+          setTimeout(() => {
+            checkAdminRole(session.user.id).then(isUserAdmin => {
+              setIsAdmin(isUserAdmin);
+              if (!isUserAdmin) {
+                toast({
+                  variant: "destructive",
+                  title: "Geen toegang",
+                  description: "Je hebt geen admin rechten voor deze pagina",
+                });
+                navigate("/");
+              }
+            });
+          }, 0);
         }
       }
     );
@@ -64,12 +96,24 @@ const AdminDashboard = () => {
       if (!session?.user) {
         navigate("/auth");
       } else {
-        fetchLeads();
+        checkAdminRole(session.user.id).then(isUserAdmin => {
+          setIsAdmin(isUserAdmin);
+          if (isUserAdmin) {
+            fetchLeads();
+          } else {
+            toast({
+              variant: "destructive",
+              title: "Geen toegang",
+              description: "Je hebt geen admin rechten voor deze pagina",
+            });
+            navigate("/");
+          }
+        });
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   const fetchLeads = async () => {
     setLoading(true);
@@ -162,6 +206,18 @@ const AdminDashboard = () => {
     won: leads.filter(l => l.status === 'won').length,
   };
 
+  if (isAdmin === null) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Laden...</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
@@ -175,6 +231,13 @@ const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
+        <Alert className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Eerste Admin Gebruiker Aanmaken</AlertTitle>
+          <AlertDescription>
+            Om de eerste admin gebruiker aan te maken, gebruik de backend database tool om een record toe te voegen aan de user_roles tabel met je user_id en role 'admin'.
+          </AlertDescription>
+        </Alert>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
           <Card>
             <CardHeader className="pb-3">
