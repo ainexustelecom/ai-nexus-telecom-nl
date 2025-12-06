@@ -7,6 +7,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Input validation helper functions
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return typeof email === 'string' && emailRegex.test(email) && email.length <= 255;
+};
+
+const isValidNumber = (value: unknown, min = 0, max = 1000000): boolean => {
+  return typeof value === 'number' && !isNaN(value) && value >= min && value <= max;
+};
+
+const isValidString = (value: unknown, maxLength = 500): boolean => {
+  return value === null || (typeof value === 'string' && value.length <= maxLength);
+};
+
+const sanitizeString = (value: string | null): string | null => {
+  if (value === null) return null;
+  // Remove any HTML tags and trim
+  return value.replace(/<[^>]*>/g, '').trim().substring(0, 500);
+};
+
 interface CalculatorSubmission {
   id: string;
   company_name: string | null;
@@ -27,6 +47,66 @@ interface CalculatorSubmission {
   home_workers: number;
 }
 
+const validateSubmission = (data: unknown): { valid: boolean; error?: string; submission?: CalculatorSubmission } => {
+  if (!data || typeof data !== 'object') {
+    return { valid: false, error: 'Invalid request body' };
+  }
+
+  const submission = data as Record<string, unknown>;
+
+  // Validate required email
+  if (!submission.email || !isValidEmail(submission.email as string)) {
+    return { valid: false, error: 'Invalid email address' };
+  }
+
+  // Validate numeric fields
+  const numericFields = [
+    'employees', 'monthly_costs', 'total_savings', 'savings_percentage',
+    'mobile_subscriptions', 'data_usage_gb', 'fixed_lines', 'national_minutes',
+    'international_minutes', 'sms_volume', 'contract_months', 'home_workers'
+  ];
+
+  for (const field of numericFields) {
+    if (!isValidNumber(submission[field])) {
+      return { valid: false, error: `Invalid value for ${field}` };
+    }
+  }
+
+  // Validate string fields
+  if (!isValidString(submission.company_name)) {
+    return { valid: false, error: 'Invalid company name' };
+  }
+  if (!isValidString(submission.phone, 50)) {
+    return { valid: false, error: 'Invalid phone number' };
+  }
+  if (!isValidString(submission.system_type, 100)) {
+    return { valid: false, error: 'Invalid system type' };
+  }
+
+  return {
+    valid: true,
+    submission: {
+      id: typeof submission.id === 'string' ? submission.id : '',
+      company_name: sanitizeString(submission.company_name as string | null),
+      email: (submission.email as string).trim().toLowerCase(),
+      phone: sanitizeString(submission.phone as string | null),
+      employees: submission.employees as number,
+      monthly_costs: submission.monthly_costs as number,
+      total_savings: submission.total_savings as number,
+      savings_percentage: submission.savings_percentage as number,
+      system_type: sanitizeString(submission.system_type as string) || '',
+      mobile_subscriptions: submission.mobile_subscriptions as number,
+      data_usage_gb: submission.data_usage_gb as number,
+      fixed_lines: submission.fixed_lines as number,
+      national_minutes: submission.national_minutes as number,
+      international_minutes: submission.international_minutes as number,
+      sms_volume: submission.sms_volume as number,
+      contract_months: submission.contract_months as number,
+      home_workers: submission.home_workers as number,
+    }
+  };
+};
+
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -34,7 +114,22 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const submission: CalculatorSubmission = await req.json();
+    const rawData = await req.json();
+    
+    // Validate and sanitize input
+    const validation = validateSubmission(rawData);
+    if (!validation.valid || !validation.submission) {
+      console.error('Validation failed:', validation.error);
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        }
+      );
+    }
+
+    const submission = validation.submission;
     
     console.log('Processing submission:', submission);
 
