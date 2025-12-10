@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft } from "lucide-react";
 import type { User, Session } from '@supabase/supabase-js';
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const navigate = useNavigate();
@@ -128,6 +129,82 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email) {
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: "Vul je email adres in",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth`,
+    });
+
+    setLoading(false);
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Fout",
+        description: error.message,
+      });
+    } else {
+      toast({
+        title: "Email verzonden!",
+        description: "Check je inbox voor de reset link",
+      });
+      setShowForgotPassword(false);
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Wachtwoord vergeten</CardTitle>
+            <CardDescription>Vul je email in om een reset link te ontvangen</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="reset-email">Email</Label>
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="naam@bedrijf.nl"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Reset link versturen
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setShowForgotPassword(false)}
+              >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Terug naar login
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10 p-4">
       <Card className="w-full max-w-md">
@@ -168,6 +245,14 @@ const Auth = () => {
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Inloggen
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full text-sm"
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  Wachtwoord vergeten?
                 </Button>
               </form>
             </TabsContent>
